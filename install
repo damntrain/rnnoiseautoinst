@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Variables 
+	REPODIR="$( dirname -- "$0"; )"
+	RNNOISEREPO=werman/noise-suppression-for-voice
+	URL=$(curl -v https://api.github.com/repos/$RNNOISEREPO/releases/latest 2>&1 | egrep -wi 'linux' | cut -d '"' -f 4)
+#
+
+
+function getrnnoise () {
+wget $URL
+unzip -qq "$REPODIR/linux-rnnoise.zip"
+mkdir -p $HOME/.local/lib
+cp "$REPODIR/linux-rnnoise/ladspa/librnnoise_ladspa.so" $HOME/.local/lib/
+}
+
+function 
+
+function main () {
+	getrnnoise
+}
+main
