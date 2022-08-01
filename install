@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Variables 
+	LIBHOME="$HOME/.local/lib"
+	CFGHOME="$HOME/.config/pipewire/"
 	REPODIR="$( dirname -- "$0"; )"
 	RNNOISEREPO=werman/noise-suppression-for-voice
 	URL=$(curl -v https://api.github.com/repos/$RNNOISEREPO/releases/latest 2>&1 | egrep -wi 'linux' | cut -d '"' -f 4)
@@ -7,15 +9,20 @@
 
 
 function getrnnoise () {
-wget $URL
-unzip -qq "$REPODIR/linux-rnnoise.zip"
-mkdir -p $HOME/.local/lib
-cp "$REPODIR/linux-rnnoise/ladspa/librnnoise_ladspa.so" $HOME/.local/lib/
+	wget $URL
+	unzip -qq "$REPODIR/linux-rnnoise.zip"
+	mkdir -p $LIBHOME
+	cp "$REPODIR/linux-rnnoise/ladspa/librnnoise_ladspa.so" $LIBHOME
 }
 
-function 
+function mkpwconf () {
+	mkdir -p $CFGHOME
+	sed -i "s|123321|$HOME|g" $REPODIR/pwcforigin.conf
+	cp $REPODIR/pwcforigin.conf $CFGHOME/rnnoise-filter.conf
+} 
 
 function main () {
 	getrnnoise
+	mkpwconf
 }
 main
