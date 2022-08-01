@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 # Variables 
+	SYSDFLTUSRPTH="$HOME/.config/systemd/user"
 	LIBHOME="$HOME/.local/lib"
 	CFGHOME="$HOME/.config/pipewire/"
 	REPODIR="$( dirname -- "$0"; )"
 	RNNOISEREPO=werman/noise-suppression-for-voice
-	URL=$(curl -v https://api.github.com/repos/$RNNOISEREPO/releases/latest 2>&1 | egrep -wi 'linux' | cut -d '"' -f 4)
+	# URL for current release, all modern releases won't work for some reason 
+	# URL=$(curl -v https://api.github.com/repos/$RNNOISEREPO/releases/latest 2>&1 | egrep -wi 'linux' | cut -d '"' -f 4)
+	URL="https://github.com/werman/noise-suppression-for-voice/releases/download/v0.91/linux_rnnoise_bin_x64.tar.gz"
 #
 
 
 function getrnnoise () {
-	wget $URL
-	unzip -qq "$REPODIR/linux-rnnoise.zip"
 	mkdir -p $LIBHOME
-	cp "$REPODIR/linux-rnnoise/ladspa/librnnoise_ladspa.so" $LIBHOME
+	wget $URL
+	tar -xf $REPODIR/linux_rnnoise_bin_x64.tar.gz
+	cp "$REPODIR/bin/ladspa/librnnoise_ladspa.so" $LIBHOME
 }
 
 function mkpwconf () {
@@ -21,8 +24,16 @@ function mkpwconf () {
 	cp $REPODIR/pwcforigin.conf $CFGHOME/rnnoise-filter.conf
 } 
 
+function getservice () {
+	mkdir -p $SYSDFLTUSRPTH
+	sed -i "s|123321|$HOME|g" $REPODIR/rnnoise.service
+	cp $REPODIR/rnnoise.service $SYSDFLTUSRPTH
+	systemctl --user enable --now rnnoise.service
+}
+
 function main () {
 	getrnnoise
 	mkpwconf
+	getservice
 }
 main
