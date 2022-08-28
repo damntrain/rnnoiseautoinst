@@ -10,25 +10,34 @@
 	URL="https://github.com/werman/noise-suppression-for-voice/releases/download/v0.91/linux_rnnoise_bin_x64.tar.gz"
 #
 
+function donemsg () {
+	printf "\b\b\b, done.\n"
+}
 
 function getrnnoise () {
+	printf "Getting rnnoise libs..."
 	mkdir -p $LIBHOME
-	wget $URL
+	wget $URL &>/dev/null
 	tar -xf $REPODIR/linux_rnnoise_bin_x64.tar.gz
 	cp "$REPODIR/bin/ladspa/librnnoise_ladspa.so" $LIBHOME
+	donemsg
 }
 
 function mkpwconf () {
+	printf "Creating config file..."
 	mkdir -p $CFGHOME
 	sed -i "s|123321|$HOME|g" $REPODIR/pwcforigin.conf
 	cp $REPODIR/pwcforigin.conf $CFGHOME/rnnoise-filter.conf
+	donemsg
 } 
 
 function getservice () {
+	printf "Creating and starting rnnoise.service..."
 	mkdir -p $SYSDFLTUSRPTH
 	sed -i "s|123321|$HOME|g" $REPODIR/rnnoise.service
 	cp $REPODIR/rnnoise.service $SYSDFLTUSRPTH
 	systemctl --user enable --now rnnoise.service
+	donemsg
 }
 
 function main () {
